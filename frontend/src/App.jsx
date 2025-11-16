@@ -66,7 +66,7 @@ function App() {
     try {
       const response = await axios.patch(`/api/todos/${id}`, {
         text: editedText,
-        dueDate: editedDueDate
+        dueDate: editedDueDate,
       });
 
       setTodos(todos.map((t) => (t._id === id ? response.data : t)));
@@ -79,8 +79,8 @@ function App() {
 
   const toggleComplete = async (todo) => {
     try {
-      const response = await axios.patch(`/api/todos/${id}`, {
-        isCompleted: !todo.isCompleted,
+      const response = await axios.patch(`/api/todos/${todo._id}`, {
+        completed: !todo.completed,
       });
       setTodos(todos.map((t) => (t._id === todo._id ? response.data : t)));
     } catch (e) {
@@ -89,7 +89,7 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-liner-to-br from gray-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-liner-to-br from gray-100 flex items-center justify-center p-8">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg p-8">
         <h1 className="text-4xl font-bold text-gray-800 mb-8 justify-between text-center">
           Task Manager
@@ -183,15 +183,15 @@ function App() {
                         <div className="flex items-center gap-3">
                           <input
                             type="checkbox"
-                            checked={todo.isCompleted}
+                            checked={todo.completed}
                             onChange={() => toggleComplete(todo)}
                             className="h5 w-5 text-blue-500 rounded"
                           />
                           <span
-                            className={`text-lg text-gray-800 ${
-                              todo.isCompleted
+                            className={`text-lg transition-all duration-200 ${
+                              todo.completed
                                 ? "line-through text-gray-400"
-                                : ""
+                                : "text-gray-800"
                             }`}
                           >
                             {todo.text}

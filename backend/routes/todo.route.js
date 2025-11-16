@@ -18,49 +18,49 @@ router.get("/", async (req, res) => {
 router.post("/", async (req, res) => {
   const todo = new Todo({
     text: req.body.text,
-    dueDate: req.body.dueDate // req.body must exist
+    dueDate: req.body.dueDate, // req.body must exist
   });
   try {
     const newTodo = await todo.save();
     res.status(201).json(newTodo);
   } catch (e) {
-    console.error("Error creating todo:", e); // 
-    res.status(500).json({ message: e.message }); // 
+    console.error("Error creating todo:", e); //
+    res.status(500).json({ message: e.message }); //
   }
 });
 
 //update a todo
-router.patch("/:id", async(req,res)=>{
-    try{
-        const todo = await Todo.findById(req.params.id)
-        if(!todo) return res.status(404).json({message : "todo not found"});
-        if(req.body.text !== undefined) {
-            todo.text = req.body.text;
-            todo.dueDate = req.body.dueDate;
-        }
-        const updatedTodo = await todo.save();
+router.patch("/:id", async (req, res) => {
+  try {
+    const todo = await Todo.findById(req.params.id);
+    if (!todo) return res.status(404).json({ message: "todo not found" });
+    if (req.body.text !== undefined) todo.text = req.body.text;
+    if (req.body.dueDate !== undefined) todo.dueDate = req.body.dueDate;
+    if (req.body.completed !== undefined) todo.completed = req.body.completed;
 
-        res.json(updatedTodo);
-    }catch(e){
-        res.status(400).json({messge :e.message})
-    }
-})
+    const updatedTodo = await todo.save();
+
+    res.json(updatedTodo);
+  } catch (e) {
+    res.status(400).json({ messge: e.message });
+  }
+});
 
 //delete a todo
-router.delete("/:id", async(req,res)=>{
-    if(!mongoose.Types.ObjectId.isValid(req.params.id)) {
-        return res.status(400).json({message: "invalid Todo id format"});
+router.delete("/:id", async (req, res) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return res.status(400).json({ message: "invalid Todo id format" });
+  }
+  try {
+    const todo = await Todo.findByIdAndDelete(req.params.id);
+    if (!todo) {
+      return res.status(404).json({
+        message: "Todo not found",
+      });
     }
-    try {
-        const todo = await Todo.findByIdAndDelete(req.params.id);
-        if(!todo) {
-            return res.status(404).json({
-                message: "Todo not found"
-            });
-        }
-        res.json({message : "todo deleted!"})
-    } catch(e){
-        res.status(500).json({message: e.message});
-    }
-})
+    res.json({ message: "todo deleted!" });
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
+});
 export default router;

@@ -49,7 +49,7 @@ You will need [Node.js](https://nodejs.org/) and [npm](https://www.npmjs.com/) (
 
 2.  **Navigate to the project directory:**
     ```sh
-    cd [Your-Repo-Name]
+    cd task-manager
     ```
 
 3.  **Install Frontend Dependencies:**

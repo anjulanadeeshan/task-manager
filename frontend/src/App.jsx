@@ -1,18 +1,26 @@
 import axios from "axios";
 import { useEffect } from "react";
 import { useState } from "react";
+import DatePicker from "react-datepicker";
+import { FaCalendarAlt } from "react-icons/fa";
+import "react-datepicker/dist/react-datepicker.css";
 
 function App() {
   const [newTodo, setNewTodo] = useState("");
   const [todos, setTodos] = useState([]);
   const [editingTodo, setEditingTodo] = useState(null);
   const [editedText, setEditedText] = useState("");
+  const [editedDueDate, setEditedDueDate] = useState(new Date());
+  const [dueDate, setDueDate] = useState(new Date());
 
   const addTodo = async (e) => {
     e.preventDefault();
     if (!newTodo.trim()) return;
     try {
-      const response = await axios.post("/api/todos", { text: newTodo });
+      const response = await axios.post("/api/todos", {
+        text: newTodo,
+        dueDate,
+      });
       setTodos([...todos, response.data]);
       setNewTodo("");
     } catch (e) {
@@ -46,6 +54,7 @@ function App() {
   const startEdit = (todo) => {
     setEditingTodo(todo._id);
     setEditedText(todo.text);
+    setEditedDueDate(new Date(todo.dueDate));
   };
 
   const cancelEdit = () => {
@@ -57,6 +66,7 @@ function App() {
     try {
       const response = await axios.patch(`/api/todos/${id}`, {
         text: editedText,
+        dueDate: editedDueDate
       });
 
       setTodos(todos.map((t) => (t._id === id ? response.data : t)));
@@ -96,6 +106,20 @@ function App() {
             className="flex-1 outline-none px-2 py-2 text-gray-700 placeholder-gray-400"
             required
           />
+          <DatePicker
+            selected={dueDate}
+            onChange={(date) => setDueDate(date)}
+            dateFormat="yyyy-MM-dd"
+            customInput={
+              <button
+                type="button"
+                className="p-2 rounded-md hover:bg-gray-200"
+              >
+                <FaCalendarAlt className="text-gray-600" size={20} />
+              </button>
+            }
+          />
+
           <button
             type="submit"
             className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md font-medium cursor-pointer "
@@ -106,11 +130,14 @@ function App() {
         {/*this is updated section*/}
         <div className="mt-8">
           {todos.length === 0 ? (
-              <p className="text-center text-gray-500">tasks are empty</p>
+            <p className="text-center text-gray-500">tasks are empty</p>
           ) : (
             <ul className="space-y-4">
               {todos.map((todo) => (
-                <li key={todo._id} className="flex items-center justify-between p-1 bg-gray-50 rounded-md shadow-sm">
+                <li
+                  key={todo._id}
+                  className="flex items-center justify-between p-1 bg-gray-50 rounded-md shadow-sm"
+                >
                   {editingTodo === todo._id ? (
                     //editing mode
                     <div className="flex-1 flex gap-2">
@@ -120,28 +147,77 @@ function App() {
                         onChange={(e) => setEditedText(e.target.value)}
                         className="flex-1 outline-none px-2 py-1 border rounded"
                       />
-                      <button onClick={() => saveEdit(todo._id)} className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded">Save</button>
-                      <button onClick={cancelEdit} className="bg-gray-400 hover:bg-gray-500 text-white px-3 py-1 rounded">Cancel</button>
+                      <DatePicker
+                        selected={editedDueDate}
+                        onChange={(date) => setEditedDueDate(date)}
+                        dateFormat="yyyy-MM-dd"
+                        customInput={
+                          <button
+                            type="button"
+                            className="p-2 rounded-md hover:bg-gray-200"
+                          >
+                            <FaCalendarAlt
+                              className="text-gray-600"
+                              size={20}
+                            />
+                          </button>
+                        }
+                      />
+                      <button
+                        onClick={() => saveEdit(todo._id)}
+                        className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded"
+                      >
+                        Save
+                      </button>
+                      <button
+                        onClick={cancelEdit}
+                        className="bg-gray-400 hover:bg-gray-500 text-white px-3 py-1 rounded"
+                      >
+                        Cancel
+                      </button>
                     </div>
                   ) : (
                     // View Mode
                     <>
-                      <div className="flex items-center gap-3">
-                        <input
-                          type="checkbox"
-                          checked={todo.isCompleted}
-                          onChange={() => toggleComplete(todo)}
-                          className="h5 w-5 text-blue-500 rounded"
-                        />
-                        <span
-                          className={`text-lg text-gray-800 ${todo.isCompleted ? "line-through text-gray-400" : ""}`}
-                        >
-                          {todo.text}
-                        </span>
+                      <div className="flex flex-col gap-1">
+                        <div className="flex items-center gap-3">
+                          <input
+                            type="checkbox"
+                            checked={todo.isCompleted}
+                            onChange={() => toggleComplete(todo)}
+                            className="h5 w-5 text-blue-500 rounded"
+                          />
+                          <span
+                            className={`text-lg text-gray-800 ${
+                              todo.isCompleted
+                                ? "line-through text-gray-400"
+                                : ""
+                            }`}
+                          >
+                            {todo.text}
+                          </span>
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          Due:{" "}
+                          {todo.dueDate
+                            ? new Date(todo.dueDate).toLocaleDateString()
+                            : "No date"}
+                        </div>
                       </div>
+
                       <div className="gap-3 flex items-center">
-                        <button onClick={() => startEdit(todo)} className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded">Edit</button>
-                        <button onClick={() => deleteTodo(todo._id)} className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">Delete</button>
+                        <button
+                          onClick={() => startEdit(todo)}
+                          className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => deleteTodo(todo._id)}
+                          className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
+                        >
+                          Delete
+                        </button>
                       </div>
                     </>
                   )}

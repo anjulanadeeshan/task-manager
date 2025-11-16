@@ -17,14 +17,15 @@ router.get("/", async (req, res) => {
 //add a new todo
 router.post("/", async (req, res) => {
   const todo = new Todo({
-    text: req.body.text, // req.body must exist
+    text: req.body.text,
+    dueDate: req.body.dueDate // req.body must exist
   });
   try {
     const newTodo = await todo.save();
     res.status(201).json(newTodo);
   } catch (e) {
-    console.error("Error creating todo:", e); // <--- add this line to see error
-    res.status(500).json({ message: e.message }); // send 500 instead of 400 for debugging
+    console.error("Error creating todo:", e); // 
+    res.status(500).json({ message: e.message }); // 
   }
 });
 
@@ -35,6 +36,7 @@ router.patch("/:id", async(req,res)=>{
         if(!todo) return res.status(404).json({message : "todo not found"});
         if(req.body.text !== undefined) {
             todo.text = req.body.text;
+            todo.dueDate = req.body.dueDate;
         }
         const updatedTodo = await todo.save();
 

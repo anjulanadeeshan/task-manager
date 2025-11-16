@@ -4,7 +4,7 @@ A clean, simple, and intuitive web application for managing your daily tasks. St
 
 ## Preview
 
-![Task Manager App](./path-to-your-image.png)
+![Task Manager App](./src/assets/task-web.png)
 
 *(Note: You'll need to update the path above to match where you save your screenshot in the repository, e.g., `/public/preview.png`)*
 
